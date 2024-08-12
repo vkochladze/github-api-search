@@ -54,7 +54,7 @@ export default function Search() {
 
     return (
         <Command className="rounded-lg border shadow-md w-1/5">
-            <CommandInput placeholder="Type a git repository name..." onValueChange={handleChange} />
+            <CommandInput placeholder="Type a github repository name..." onValueChange={handleChange} />
 
             <CommandList>
                 {queryResult.map((repo) => (

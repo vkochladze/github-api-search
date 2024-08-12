@@ -1,27 +1,30 @@
 import { useState, useEffect } from 'react';
-import { useDebounce } from '@uidotdev/usehooks';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import {
-    Command,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from "@/components/ui/command"
 import { Button } from '@/components/ui/button';
 
-
+interface Owner {
+    login: string,
+    avatar_url: string
+}
 interface Repository {
     id: number;
     name: string;
     clone_url: string;
-    owner: string
+    owner: Owner
+    full_name: string
+    html_url: string,
+    description: string,
+    created_at: string
+    updated_at: string
+    language: string
+    open_issues_count: string
 }
 
 export default function Result() {
     const navigate = useNavigate();
 
-    const [queryResult, setQueryResult] = useState<Repository[]>([]);
-    const [searchParams, setSearchParams] = useSearchParams({ repo: "" });
+    const [queryResult, setQueryResult] = useState<Repository | null>();
+    const [searchParams] = useSearchParams({ repo: "" });
     const URLQueryParam = searchParams.get("repo");
 
     const token = import.meta.env.VITE_API_KEY;
@@ -46,21 +49,21 @@ export default function Result() {
 
     return (
         <>
-
-            <div className='flex flex-row items-center content-center'>
-                <Button className='mt-10 mb-5 mr-10 font-extrabold' onClick={() => navigate('/')}>&lt;</Button>
-                <h2 className='scroll-m-20 border-b pt-10 pb-5 text-3xl font-semibold tracking-tight first:mt-0'>Repo: {queryResult.full_name}</h2>
-            </div>
-
-            {queryResult.owner &&
+            {queryResult && queryResult.owner &&
                 <div>
+                    <div className='flex flex-row items-center content-center border-b'>
+                        <Button className='mt-10 mb-5 mr-10 pb-2 font-serif font-extrabold align-middle' onClick={() => navigate('/')}>&lt;</Button>
+
+                        <h2 className='scroll-m-20  pt-10 pb-5 text-3xl font-semibold tracking-tight first:mt-0'>Repo: {queryResult.full_name}</h2>
+                    </div>
+
                     <dl className="max-w-md text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
                         <div className="flex flex-col py-3">
-                            <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Owner:</dt>
+                            <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Owner</dt>
                             <dd className="text-lg font-semibold">{queryResult.owner.login}</dd>
                         </div>
                         <div className="flex flex-col py-3">
-                            <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Owner avatar:</dt>
+                            <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Owner avatar</dt>
                             <dd className="text-lg font-semibold"><img className='size-20' src={queryResult.owner.avatar_url} alt="" /></dd>
                         </div>
                         <div className="flex flex-col py-3">
@@ -68,21 +71,21 @@ export default function Result() {
                             <dd className="text-lg font-semibold"> <a href={queryResult.html_url}>{queryResult.html_url}</a></dd>
                         </div>
                         <div className="flex flex-col py-3">
-                            <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Description:</dt>
+                            <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Description</dt>
                             <dd className="text-lg font-semibold">
                                 {queryResult.description ? queryResult.description : <p className='font-mono text-gray-400'>No description provided</p>}
                             </dd>
                         </div>
                         <div className="flex flex-col py-3">
-                            <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Created on:</dt>
+                            <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Created on</dt>
                             <dd className="text-lg font-semibold">{queryResult.created_at}</dd>
                         </div>
                         <div className="flex flex-col py-3">
-                            <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Language:</dt>
+                            <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Last updated on</dt>
                             <dd className="text-lg font-semibold">{queryResult.updated_at}</dd>
                         </div>
                         <div className="flex flex-col py-3">
-                            <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Last updated on:</dt>
+                            <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Language</dt>
                             <dd className="text-lg font-semibold">{queryResult.language}</dd>
                         </div>
                         <div className="flex flex-col py-3">
