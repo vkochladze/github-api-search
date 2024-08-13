@@ -9,6 +9,13 @@ module.exports = {
   ],
   prefix: "",
   theme: {
+          fontFamily: {
+'sans': ['Helvetica', 'Arial', 'sans-serif'],
+'serif': ['Georgia', 'Cambria'],
+'mono': ['SFMono-Regular', 'Menlo'],
+'display': ['Oswald'],
+'body': ['Open Sans'],
+          },
     container: {
       center: true,
       padding: "2rem",
