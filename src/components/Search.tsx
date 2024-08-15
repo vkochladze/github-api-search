@@ -79,7 +79,7 @@ export default function Search() {
     }
 
     const cardView = (
-        <div className='grid grid-cols-4 gap-4 mt-5 mb-5 w-2/4'>
+        <div className='grid grid-cols-4 gap-4 mt-8 mb-5 w-2/4'>
             {repos?.map((repo: { id: number; full_name: string; description: string; clone_url: string }) => (
                 <Card key={repo.id} className='flex flex-col justify-between hover:scale-105 transition-all cursor-pointer' onClick={() => navigate(`result/?repo=${repo.id}`)} >
                     <CardHeader>
@@ -117,9 +117,7 @@ export default function Search() {
                                 <TableRow key={repo.id} className='cursor-pointer' onClick={() => navigate(`result/?repo=${repo.id}`)}>
                                     <TableCell className="font-semibold">{repo.full_name}</TableCell>
                                     <TableCell>{repo.description}</TableCell>
-                                    <Link to={repo.clone_url} target='_blank'>
-                                        <TableCell className='text-sm text-sky-700 -foreground hover:text-sky-600'>{repo.clone_url}</TableCell>
-                                    </Link>
+                                    <TableCell className='text-sm text-sky-700 -foreground hover:text-sky-600'><Link to={repo.clone_url} target='_blank'>{repo.clone_url}</Link></TableCell>
                                     <TableCell>{repo.language}</TableCell>
                                     <TableCell className="text-right">{dateWithoutTime}</TableCell>
                                 </TableRow>
