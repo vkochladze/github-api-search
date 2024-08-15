@@ -7,7 +7,7 @@ import {
     CommandList,
 } from "@/components/ui/command"
 import { useQuery } from '@tanstack/react-query';
-import { Button } from './ui/button';
+// import { Button } from './ui/button';
 import {
     Card,
     CardDescription,
@@ -18,6 +18,9 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { Context } from '@/App';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from './ui/table';
+// import { Switch } from '@radix-ui/react-switch';
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 
 export default function Search() {
     const navigate = useNavigate();
@@ -152,12 +155,25 @@ export default function Search() {
 
     return (
         <>
+
             <Command className='flex flex-row justify-between items-center rounded-lg border shadow-md w-1/5'>
                 <CommandInput className='flex-grow px-2' placeholder={!URLQueryParam ? 'Type a github repository name...' : URLQueryParam} onValueChange={handleChange} />
-                <Button onClick={switchView} className='shadow-md w-1/5'>{cardViewToggle ? 'List View' : 'Card View'}</Button>
+                {/* <Button onClick={switchView} className='shadow-md w-1/5'>{cardViewToggle ? 'List View' : 'Card View'}</Button> */}
+                <div className='flex items-center space-x-2 mr-3'>
+                    <Checkbox id='switch-view' checked={cardViewToggle} onCheckedChange={switchView} />
+                    <Label className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70' htmlFor='switch-view'>Card View</Label>
+                </div>
+
                 <CommandList className='hidden'>
                 </CommandList>
             </Command>
+
+
+            {/* <div>
+                <Switch className='p-5' checked={cardViewToggle} onCheckedChange={switchView} />
+                <Label htmlFor='switch-view'>{cardViewToggle ? 'List View' : 'Card View'}</Label>
+            </div> */}
+
 
             {isLoading && <p className='mt-5'>Loading search results...</p>}
             {URLQueryParam && !isLoading && repos.length === 0 && <p className='mt-5'>No results</p>}
