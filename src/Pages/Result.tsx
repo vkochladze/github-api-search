@@ -2,6 +2,8 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useContext } from 'react';
+import { Context } from '@/App';
 
 const loading = (
     <div>
@@ -59,6 +61,11 @@ export default function Result() {
 
     const [searchParams] = useSearchParams({ repo: "" });
     const URLQueryParam = searchParams.get("repo");
+    const contextValue = useContext(Context);
+    if (!contextValue) {
+        throw new Error("Context value is undefined. Ensure the provider is wrapped around this component.");
+    }
+    const [query] = contextValue;
 
     const token = import.meta.env.VITE_API_KEY;
     const BASE_URL = 'https://api.github.com/repositories/';
@@ -90,7 +97,7 @@ export default function Result() {
             {repoInfo && repoInfo.owner &&
                 <div>
                     <div className='flex flex-row items-center content-center border-b'>
-                        <Button className='mt-10 mb-5 mr-10 pb-2 font-serif font-extrabold align-middle' onClick={() => navigate('/')}>&lt;</Button>
+                        <Button className='mt-10 mb-5 mr-10 pb-2 font-serif font-extrabold align-middle' onClick={() => navigate(`/?q=${query}`)}>&lt;</Button>
 
                         <h2 className='scroll-m-20  pt-10 pb-5 text-3xl font-semibold tracking-tight first:mt-0'>Repo: {repoInfo.full_name}</h2>
                     </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useDebounce } from '@uidotdev/usehooks';
 import { useSearchParams, Link } from 'react-router-dom';
 import {
@@ -16,11 +16,17 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { useNavigate } from 'react-router-dom';
-
+import { Context } from '@/App';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from './ui/table';
 
 export default function Search() {
     const navigate = useNavigate();
-    const [query, setQuery] = useState<string | null>(null);
+    const contextValue = useContext(Context);
+    if (!contextValue) {
+        throw new Error("Context value is undefined. Ensure the provider is wrapped around this component.");
+    }
+    const [query, setQuery] = contextValue;
+
     const [cardViewToggle, setCardViewToggle] = useState<boolean>(() => {
         {
             const savedView = localStorage.getItem('cardViewToggle');
@@ -60,7 +66,7 @@ export default function Search() {
     };
 
     const { data: repos = [], isLoading } = useQuery({
-        queryKey: ['repos', debouncedSearchTerm],
+        queryKey: ['repos', debouncedSearchTerm, URLQueryParam],
         queryFn: fetchRepos,
         enabled: !!debouncedSearchTerm || !!URLQueryParam,
     })
@@ -78,7 +84,7 @@ export default function Search() {
                         <CardDescription>{repo.description}</CardDescription>
                     </CardHeader>
                     <CardFooter className='flex justify-between'>
-                        <Link to={repo.clone_url}><p className='text-sm text-sky-700 -foreground hover:text-sky-500'>{repo.clone_url}</p></Link>
+                        <Link to={repo.clone_url} target='_blank'><p className='text-sm text-sky-700 -foreground hover:text-sky-600'>{repo.clone_url}</p></Link>
                     </CardFooter>
 
                 </Card>
@@ -86,31 +92,68 @@ export default function Search() {
         </div>
     )
 
-    const listView = (
-        <>
+    const tabularView = (
+        <div className='w-1/2 mt-8'>
             {!isLoading && repos.length > 0 && (
-                <Command className='rounded-lg border shadow-md  w-1/5'>
-                    <CommandList className='p-1'>
-                        <ul className='font-light text-[15px] tracking-wide'>
-                            {repos?.map((repo: { id: number; name: string }) => (
-                                <Link key={repo.id} to={`result/?repo=${repo.id}`}>
-                                    <li className='cursor-pointer p-1 hover:bg-gray-100 relative flex items-center rounded-sm px-2 py-1.5' >
-                                        {repo.name}
-                                    </li>
-                                </Link>
-                            ))}
-                        </ul>
-                    </CommandList>
-                </Command>
-            )}
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[100px]">Name</TableHead>
+                            <TableHead>Description</TableHead>
+                            <TableHead>URL</TableHead>
+                            <TableHead>Language</TableHead>
+                            <TableHead className="text-right">Last Updated</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {repos?.map((repo: { id: number; full_name: string; description: string; clone_url: string; language: string; updated_at: string }) => {
+                            const updated = repo.updated_at;
+                            const dateWithoutTime = updated.split('T')[0];
 
-        </>
+                            return (
+                                <TableRow key={repo.id} className='cursor-pointer' onClick={() => navigate(`result/?repo=${repo.id}`)}>
+                                    <TableCell className="font-semibold">{repo.full_name}</TableCell>
+                                    <TableCell>{repo.description}</TableCell>
+                                    <Link to={repo.clone_url} target='_blank'>
+                                        <TableCell className='text-sm text-sky-700 -foreground hover:text-sky-600'>{repo.clone_url}</TableCell>
+                                    </Link>
+                                    <TableCell>{repo.language}</TableCell>
+                                    <TableCell className="text-right">{dateWithoutTime}</TableCell>
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+
+                </Table>
+            )}
+        </div>
     )
+
+    // const listView = (
+    //     <>
+    //         {!isLoading && repos.length > 0 && (
+    //             <Command className='rounded-lg border shadow-md w-1 /5'>
+    //                 <CommandList className='p-1'>
+    //                     <ul className='font-light text-[15px] tracking-wide'>
+    //                         {repos?.map((repo: { id: number; name: string }) => (
+    //                             <Link key={repo.id} to={`result/?repo=${repo.id}`}>
+    //                                 <li className='cursor-pointer p-1 hover:bg-gray-100 relative flex items-center rounded-sm px-2 py-1.5' >
+    //                                     {repo.name}
+    //                                 </li>
+    //                             </Link>
+    //                         ))}
+    //                     </ul>
+    //                 </CommandList>
+    //             </Command>
+    //         )}
+
+    //     </>
+    // )
 
     return (
         <>
             <Command className='flex flex-row justify-between items-center rounded-lg border shadow-md w-1/5'>
-                <CommandInput className='flex-grow px-2' placeholder="Type a github repository name..." onValueChange={handleChange} />
+                <CommandInput className='flex-grow px-2' placeholder={!URLQueryParam ? 'Type a github repository name...' : URLQueryParam} onValueChange={handleChange} />
                 <Button onClick={switchView} className='shadow-md w-1/5'>{cardViewToggle ? 'List View' : 'Card View'}</Button>
                 <CommandList className='hidden'>
                 </CommandList>
@@ -118,7 +161,7 @@ export default function Search() {
 
             {isLoading && <p className='mt-5'>Loading search results...</p>}
             {URLQueryParam && !isLoading && repos.length === 0 && <p className='mt-5'>No results</p>}
-            {cardViewToggle ? cardView : listView}
+            {cardViewToggle ? cardView : tabularView}
 
         </>
     );
